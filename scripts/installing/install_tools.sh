@@ -137,11 +137,13 @@ else
     fi
 fi
 
+echo "----------------------------------------------------------------"
+echo "----------------------------------------------------------------"
 
 # ==============================================================================
 # VS CODE (PORTABLE)
 # ==============================================================================
-echo -e "${YELLOW}VS Code (Portable)...${NC}"
+echo -e "${YELLOW}[4/6] VS Code (Portable)...${NC}"
 
 if [ "$IS_ADMIN" = true ]; then
     sudo snap install code --classic
@@ -173,7 +175,7 @@ echo "----------------------------------------------------------------"
 # ==============================================================================
 # LOGISIM EVOLUTION (Circuitos Digitais)
 # ==============================================================================
-echo -e "${YELLOW}Logisim Evolution...${NC}"
+echo -e "${YELLOW}[5/6] Logisim Evolution...${NC}"
 
 if [ "$IS_ADMIN" = true ]; then
     # Logisim não tem apt fácil, instalamos via AppImage mesmo com root
@@ -198,7 +200,7 @@ echo "----------------------------------------------------------------"
 # ==============================================================================
 # ARDUINO IDE 2.0
 # ==============================================================================
-echo -e "${YELLOW}Arduino IDE...${NC}"
+echo -e "${YELLOW}[6/6] Arduino IDE...${NC}"
 
 cd "$INSTALL_DIR"
 rm -rf arduino-dir
@@ -224,7 +226,7 @@ echo "----------------------------------------------------------------"
 # ==============================================================================
 # MINICONDA3
 # ==============================================================================
-echo -e "${YELLOW}Miniconda3...${NC}"
+echo -e "${YELLOW}[6/6] Miniconda3...${NC}"
 
 cd "$INSTALL_DIR"
 rm -rf python-dir
@@ -239,6 +241,87 @@ rm miniconda.sh
 
 if ! grep -q "alias miniconda=" "$ALIAS_FILE"; then
     echo "alias miniconda=\"$INSTALL_DIR/python-dir/miniconda3/bin/conda init bash\"" >> "$ALIAS_FILE"
+fi
+
+echo "----------------------------------------------------------------"
+echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# OBSIDIAN (Anotações e Markdown)
+# ==============================================================================
+echo -e "${YELLOW}Obsidian...${NC}"
+
+cd "$INSTALL_DIR"
+rm -rf obsidian-dir
+mkdir -p obsidian-dir
+cd obsidian-dir
+
+echo "Baixando Obsidian..."
+# Link da versão 1.6.7 (Estável)
+wget -c "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.6.7/Obsidian-1.6.7.AppImage" -O obsidian.AppImage
+chmod +x obsidian.AppImage
+
+echo "Extraindo..."
+./obsidian.AppImage --appimage-extract > /dev/null
+mv squashfs-root obsidian-files
+rm obsidian.AppImage
+
+if ! grep -q "alias obsidian=" "$ALIAS_FILE"; then
+    # É Electron, precisa das flags de segurança
+    echo "alias obsidian=\"$INSTALL_DIR/obsidian-dir/obsidian-files/obsidian --no-sandbox --disable-gpu > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
+fi
+
+echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# DBEAVER (Banco de Dados)
+# ==============================================================================
+echo -e "${YELLOW}DBeaver Community...${NC}"
+
+cd "$INSTALL_DIR"
+rm -rf dbeaver-dir
+mkdir -p dbeaver-dir
+cd dbeaver-dir
+
+echo "Baixando DBeaver..."
+# Versão CE 24.0.0 (Linux tar.gz)
+wget -c "https://dbeaver.io/files/24.0.0/dbeaver-ce-24.0.0-linux.gtk.x86_64.tar.gz" -O dbeaver.tar.gz
+
+echo "Extraindo..."
+tar -xvf dbeaver.tar.gz > /dev/null
+rm dbeaver.tar.gz
+# A pasta extraída chama-se 'dbeaver'
+mv dbeaver dbeaver-bin
+
+if ! grep -q "alias dbeaver=" "$ALIAS_FILE"; then
+    echo "alias dbeaver=\"$INSTALL_DIR/dbeaver-dir/dbeaver-bin/dbeaver > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
+fi
+
+echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# POSTMAN (APIs e Redes)
+# ==============================================================================
+echo -e "${YELLOW}Postman...${NC}"
+
+cd "$INSTALL_DIR"
+rm -rf postman-dir
+mkdir -p postman-dir
+cd postman-dir
+
+echo "Baixando Postman..."
+# Link direto oficial (sempre latest, mas costuma ser estável em estrutura)
+wget -c "https://dl.pstmn.io/download/latest/linux64" -O postman.tar.gz
+
+echo "Extraindo..."
+tar -xvf postman.tar.gz > /dev/null
+rm postman.tar.gz
+# A pasta extraída chama-se 'Postman'
+mv Postman postman-bin
+
+if ! grep -q "alias postman=" "$ALIAS_FILE"; then
+    # Postman também é Electron
+    echo "alias postman=\"$INSTALL_DIR/postman-dir/postman-bin/Postman --no-sandbox --disable-gpu > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
 fi
 
 echo "----------------------------------------------------------------"
