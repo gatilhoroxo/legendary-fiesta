@@ -137,7 +137,113 @@ else
     fi
 fi
 
+
+# ==============================================================================
+# VS CODE (PORTABLE)
+# ==============================================================================
+echo -e "${YELLOW}VS Code (Portable)...${NC}"
+
+if [ "$IS_ADMIN" = true ]; then
+    sudo snap install code --classic
+else
+    cd "$INSTALL_DIR"
+    rm -rf vscode-dir
+    mkdir -p vscode-dir
+    cd vscode-dir
+
+    echo "Baixando VS Code (tar.gz)..."
+    # Link oficial que sempre aponta para a última versão estável
+    wget -c "https://code.visualstudio.com/sha/download?build=stable&os=linux-x64" -O vscode.tar.gz
+    
+    echo "Extraindo..."
+    tar -xvf vscode.tar.gz > /dev/null
+    rm vscode.tar.gz
+    
+    # A pasta extraída geralmente se chama "VSCode-linux-x64"
+    mv VSCode-linux-x64 vscode-bin
+
+    if ! grep -q "alias codes=" "$ALIAS_FILE"; then
+        # Adiciona flags de segurança para rodar sem travar no lab
+        echo "alias codes=\"$INSTALL_DIR/vscode-dir/vscode-bin/code --no-sandbox --disable-gpu --disable-software-rasterizer > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
+    fi
+fi
+
 echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# LOGISIM EVOLUTION (Circuitos Digitais)
+# ==============================================================================
+echo -e "${YELLOW}Logisim Evolution...${NC}"
+
+if [ "$IS_ADMIN" = true ]; then
+    # Logisim não tem apt fácil, instalamos via AppImage mesmo com root
+    echo "Instalando via AppImage (Padrão)..."
+fi
+
+# Instalação igual para Root ou User (AppImage é o melhor jeito aqui)
+cd "$INSTALL_DIR"
+rm -rf logisim-dir
+mkdir -p logisim-dir
+cd logisim-dir
+
+echo "Baixando Logisim Evolution..."
+wget https://github.com/logisim-evolution/logisim-evolution/releases/download/v4.0.0/logisim-evolution-4.0.0-all.jar -O logisim.jar
+
+if ! grep -q "alias logisim=" "$ALIAS_FILE"; then
+    echo "alias logisim=\"java -jar ~/$INSTALL_DIR/logisim-dir/logisim.jar > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
+fi
+
+echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# ARDUINO IDE 2.0
+# ==============================================================================
+echo -e "${YELLOW}Arduino IDE...${NC}"
+
+cd "$INSTALL_DIR"
+rm -rf arduino-dir
+mkdir -p arduino-dir
+cd arduino-dir
+
+echo "Baixando Arduino IDE..."
+wget -c "https://downloads.arduino.cc/arduino-ide/arduino-ide_2.3.2_Linux_64bit.AppImage" -O arduino.AppImage
+chmod +x arduino.AppImage
+
+echo "Extraindo..."
+./arduino.AppImage --appimage-extract > /dev/null
+mv squashfs-root arduino-files
+rm arduino.AppImage
+
+if ! grep -q "alias arduino=" "$ALIAS_FILE"; then
+    # Arduino 2.0 também é Electron, precisa das flags de GPU
+    echo "alias arduino=\"$INSTALL_DIR/arduino-dir/arduino-files/arduino-ide --no-sandbox --disable-gpu > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
+fi
+
+echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# MINICONDA3
+# ==============================================================================
+echo -e "${YELLOW}Miniconda3...${NC}"
+
+cd "$INSTALL_DIR"
+rm -rf python-dir
+mkdir -p python-dir
+cd python-dir
+
+echo "Baixando Arduino IDE..."
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+bash miniconda.sh
+
+rm miniconda.sh
+
+if ! grep -q "alias miniconda=" "$ALIAS_FILE"; then
+    echo "alias miniconda=\"$INSTALL_DIR/python-dir/miniconda3/bin/conda init bash\"" >> "$ALIAS_FILE"
+fi
+
+echo "----------------------------------------------------------------"
+echo "----------------------------------------------------------------"
+
 echo -e "${GREEN}Instalação Finalizada!${NC}"
 if [ "$IS_ADMIN" = false ]; then
     echo "Aliases salvos em: $ALIAS_FILE"
