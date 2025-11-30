@@ -1,14 +1,19 @@
+#!/bin/bash
+
+# ==============================================================================
+# SCRIPT DE INSTALAÇÃO - FERRAMENTAS PARA FACULDADE (UBUNTU 24.04)
+# ==============================================================================
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
 INSTALL_DIR="$HOME/tools"
-ALIAS_FILE="$INSTALL_DIR/tools.sh"
-BASHRC="$HOME/.bash_config/aliases.sh"
+ALIAS_FILE="$INSTALL_DIR/tools.bash"
+BASH_ALIASES="$HOME/.bash_config/aliases.sh"
 BLACK_WHOLE="/dev/null"
 
-echo -e "${YELLOW}Iniciando configuração modular...${NC}"
+echo -e "${YELLOW}Iniciando configuração modular (Ferramentas Acadêmicas)...${NC}"
 
 mkdir -p "$INSTALL_DIR"
 
@@ -19,10 +24,10 @@ if [ ! -f "$ALIAS_FILE" ]; then
 fi
 
 # 2. Conecta o tools.bash ao .bashrc
-if ! grep -q "source $ALIAS_FILE" "$BASHRC"; then
-    echo "" >> "$BASHRC"
-    echo "# Carregar aliases locais" >> "$BASHRC"
-    echo "if [ -f $ALIAS_FILE ]; then source $ALIAS_FILE; fi" >> "$BASHRC"
+if ! grep -q "source $ALIAS_FILE" "$BASH_ALIASES"; then
+    echo "" >> "$BASH_ALIASES"
+    echo "# Carregar aliases locais" >> "$BASH_ALIASES"
+    echo "if [ -f $ALIAS_FILE ]; then source $ALIAS_FILE; fi" >> "$BASH_ALIASES"
     echo -e "${GREEN}Link criado no .bashrc para ler o tools.bash${NC}"
 fi
 
@@ -39,7 +44,78 @@ else
 fi
 
 echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# LOGISIM EVOLUTION (Circuitos Digitais)
+# ==============================================================================
+echo -e "${YELLOW}Logisim Evolution...${NC}"
+
+if [ "$IS_ADMIN" = true ]; then
+    # Logisim não tem apt fácil, instalamos via AppImage mesmo com root
+    echo "Instalando via AppImage (Padrão)..."
+fi
+
+# Instalação igual para Root ou User (AppImage é o melhor jeito aqui)
+cd "$INSTALL_DIR"
+rm -rf logisim-dir
+mkdir -p logisim-dir
+cd logisim-dir
+
+echo "Baixando Logisim Evolution..."
+wget https://github.com/logisim-evolution/logisim-evolution/releases/download/v4.0.0/logisim-evolution-4.0.0-all.jar -O logisim.jar
+
+if ! grep -q "alias logisim=" "$ALIAS_FILE"; then
+    echo "alias logisim=\"java -jar ~/$INSTALL_DIR/logisim-dir/logisim.jar > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
+fi
+
 echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# ARDUINO IDE 2.0
+# ==============================================================================
+echo -e "${YELLOW}Arduino IDE...${NC}"
+
+cd "$INSTALL_DIR"
+rm -rf arduino-dir
+mkdir -p arduino-dir
+cd arduino-dir
+
+echo "Baixando Arduino IDE..."
+wget -c "https://downloads.arduino.cc/arduino-ide/arduino-ide_2.3.2_Linux_64bit.AppImage" -O arduino.AppImage
+chmod +x arduino.AppImage
+
+echo "Extraindo..."
+./arduino.AppImage --appimage-extract > /dev/null
+mv squashfs-root arduino-files
+rm arduino.AppImage
+
+if ! grep -q "alias arduino=" "$ALIAS_FILE"; then
+    # Arduino 2.0 também é Electron, precisa das flags de GPU
+    echo "alias arduino=\"$INSTALL_DIR/arduino-dir/arduino-files/arduino-ide --no-sandbox --disable-gpu > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
+fi
+
+echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# MINICONDA3
+# ==============================================================================
+echo -e "${YELLOW}Miniconda3...${NC}"
+
+cd "$INSTALL_DIR"
+rm -rf python-dir
+mkdir -p python-dir
+cd python-dir
+
+echo "Baixando Miniconda3..."
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+bash miniconda.sh
+
+rm miniconda.sh
+
+if ! grep -q "alias miniconda=" "$ALIAS_FILE"; then
+    echo "alias miniconda=\"$INSTALL_DIR/python-dir/miniconda3/bin/conda init bash\"" >> "$ALIAS_FILE"
+fi
+
 echo "----------------------------------------------------------------"
 
 # ==============================================================================
@@ -140,9 +216,9 @@ if [ "$IS_ADMIN" = true ]; then
         # É Electron, precisa das flags de segurança
         echo "alias circuitblocks=\"$INSTALL_DIR/circuitblocks-dir/cb-files/circuitblocks --no-sandbox --disable-gpu > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
     fi
-fi else
-    echo "CircuitBlocks não pôde ser instalado\n"
-fi 
+else
+    echo -e "${YELLOW}CircuitBlocks requer privilégios de administrador.${NC}"
+fi
 
 echo "----------------------------------------------------------------"
 
@@ -195,3 +271,10 @@ if ! grep -q "alias arcademanager=" "$ALIAS_FILE"; then
 fi
 
 echo "----------------------------------------------------------------"
+echo "----------------------------------------------------------------"
+
+echo -e "${GREEN}Instalação de Ferramentas Acadêmicas Finalizada!${NC}"
+if [ "$IS_ADMIN" = false ]; then
+    echo "Aliases salvos em: $ALIAS_FILE"
+    echo "Para ativar agora, rode: source ~/.bashrc"
+fi
