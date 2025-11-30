@@ -8,9 +8,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-INSTALL_DIR="$HOME/Tools"
+INSTALL_DIR="$HOME/tools"
 ALIAS_FILE="$INSTALL_DIR/tools.bash"
-BASHRC="$HOME/.bashrc"
+BASH_ALIASES="$HOME/.bash_config/aliases.sh"
 BLACK_WHOLE="/dev/null"
 
 echo -e "${YELLOW}Iniciando configuração modular...${NC}"
@@ -24,10 +24,10 @@ if [ ! -f "$ALIAS_FILE" ]; then
 fi
 
 # 2. Conecta o tools.bash ao .bashrc
-if ! grep -q "source $ALIAS_FILE" "$BASHRC"; then
-    echo "" >> "$BASHRC"
-    echo "# Carregar aliases locais" >> "$BASHRC"
-    echo "if [ -f $ALIAS_FILE ]; then source $ALIAS_FILE; fi" >> "$BASHRC"
+if ! grep -q "source $ALIAS_FILE" "$BASH_ALIASES"; then
+    echo "" >> "$BASH_ALIASES"
+    echo "# Carregar aliases locais" >> "$BASH_ALIASES"
+    echo "if [ -f $ALIAS_FILE ]; then source $ALIAS_FILE; fi" >> "$BASH_ALIASES"
     echo -e "${GREEN}Link criado no .bashrc para ler o tools.bash${NC}"
 fi
 
