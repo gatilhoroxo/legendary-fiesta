@@ -101,6 +101,7 @@ beginUser(){
   # linguagens
   sudo apt install -y python3 python3-pip python3-venv
   sudo apt install -y openjdk-21-jdk maven
+  curl https://sh.rustup.rs -sSf | sh
   sysupdate
 
   # framework Qt
