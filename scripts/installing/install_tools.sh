@@ -102,6 +102,38 @@ if ! grep -q "alias gh=" "$ALIAS_FILE"; then
 fi
 
 echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# VS CODE (PORTABLE)
+# ==============================================================================
+echo -e "${YELLOW}[4/6] VS Code (Portable)...${NC}"
+
+if [ "$IS_ADMIN" = true ]; then
+    sudo snap install code --classic
+else
+    cd "$INSTALL_DIR"
+    rm -rf vscode-dir
+    mkdir -p vscode-dir
+    cd vscode-dir
+
+    echo "Baixando VS Code (tar.gz)..."
+    # Link oficial que sempre aponta para a última versão estável
+    wget -c "https://code.visualstudio.com/sha/download?build=stable&os=linux-x64" -O vscode.tar.gz
+    
+    echo "Extraindo..."
+    tar -xvf vscode.tar.gz > /dev/null
+    rm vscode.tar.gz
+    
+    # A pasta extraída geralmente se chama "VSCode-linux-x64"
+    mv VSCode-linux-x64 vscode-bin
+
+    if ! grep -q "alias codes=" "$ALIAS_FILE"; then
+        # Adiciona flags de segurança para rodar sem travar no lab
+        echo "alias codes=\"$INSTALL_DIR/vscode-dir/vscode-bin/code --no-sandbox --disable-gpu --disable-software-rasterizer > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
+    fi
+fi
+
+echo "----------------------------------------------------------------"
 echo "----------------------------------------------------------------"
 
 # ==============================================================================
@@ -199,37 +231,6 @@ fi
 echo "----------------------------------------------------------------"
 echo "----------------------------------------------------------------"
 
-# ==============================================================================
-# VS CODE (PORTABLE)
-# ==============================================================================
-echo -e "${YELLOW}[4/6] VS Code (Portable)...${NC}"
-
-if [ "$IS_ADMIN" = true ]; then
-    sudo snap install code --classic
-else
-    cd "$INSTALL_DIR"
-    rm -rf vscode-dir
-    mkdir -p vscode-dir
-    cd vscode-dir
-
-    echo "Baixando VS Code (tar.gz)..."
-    # Link oficial que sempre aponta para a última versão estável
-    wget -c "https://code.visualstudio.com/sha/download?build=stable&os=linux-x64" -O vscode.tar.gz
-    
-    echo "Extraindo..."
-    tar -xvf vscode.tar.gz > /dev/null
-    rm vscode.tar.gz
-    
-    # A pasta extraída geralmente se chama "VSCode-linux-x64"
-    mv VSCode-linux-x64 vscode-bin
-
-    if ! grep -q "alias codes=" "$ALIAS_FILE"; then
-        # Adiciona flags de segurança para rodar sem travar no lab
-        echo "alias codes=\"$INSTALL_DIR/vscode-dir/vscode-bin/code --no-sandbox --disable-gpu --disable-software-rasterizer > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
-    fi
-fi
-
-echo "----------------------------------------------------------------"
 echo "----------------------------------------------------------------"
 
 # ==============================================================================
