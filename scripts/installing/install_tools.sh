@@ -43,6 +43,65 @@ else
     echo -e "${YELLOW}Ambiente restrito detectado. Instalando modo PORTÁTIL.${NC}"
 fi
 
+
+
+echo "----------------------------------------------------------------"
+
+# ==============================================================================
+# OBSIDIAN (Anotações e Markdown)
+# ==============================================================================
+echo -e "${YELLOW}Obsidian...${NC}"
+
+cd "$INSTALL_DIR"
+rm -rf obsidian-dir
+mkdir -p obsidian-dir
+cd obsidian-dir
+
+echo "Baixando Obsidian..."
+# Link da versão 1.6.7 (Estável)
+wget -c "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.6.7/Obsidian-1.6.7.AppImage" -O obsidian.AppImage
+chmod +x obsidian.AppImage
+
+echo "Extraindo..."
+./obsidian.AppImage --appimage-extract > /dev/null
+mv squashfs-root obsidian-files
+rm obsidian.AppImage
+
+if ! grep -q "alias obsidian=" "$ALIAS_FILE"; then
+    # É Electron, precisa das flags de segurança
+    echo "alias obsidian=\"$INSTALL_DIR/obsidian-dir/obsidian-files/obsidian --no-sandbox --disable-gpu > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
+fi
+
+echo "----------------------------------------------------------------"
+
+
+# ==============================================================================
+# GITHUB CLI (gh) - Para autenticação e gerenciamento de repositórios
+# ==============================================================================
+echo -e "${YELLOW}[Extra 13] GitHub CLI (gh)...${NC}"
+
+cd "$INSTALL_DIR"
+rm -rf gh-dir
+mkdir -p gh-dir
+cd gh-dir
+
+echo "Baixando GitHub CLI v2.63.0..."
+# Link oficial do binário para Linux x64
+wget -c "https://github.com/cli/cli/releases/download/v2.63.0/gh_2.63.0_linux_amd64.tar.gz" -O gh.tar.gz
+
+echo "Extraindo..."
+tar -xvf gh.tar.gz > /dev/null
+rm gh.tar.gz
+
+# O tar extrai uma pasta com nome longo, vamos achar o binário independente do nome
+GH_BIN_PATH=$(find . -name "gh" -type f | head -n 1)
+
+if ! grep -q "alias gh=" "$ALIAS_FILE"; then
+    # O comando é simples, não precisa de flags de GPU
+    echo "alias gh=\"$INSTALL_DIR/gh-dir/$GH_BIN_PATH\"" >> "$ALIAS_FILE"
+fi
+
+echo "----------------------------------------------------------------"
 echo "----------------------------------------------------------------"
 
 # ==============================================================================
@@ -171,34 +230,6 @@ else
 fi
 
 echo "----------------------------------------------------------------"
-
-echo "----------------------------------------------------------------"
-
-# ==============================================================================
-# OBSIDIAN (Anotações e Markdown)
-# ==============================================================================
-echo -e "${YELLOW}Obsidian...${NC}"
-
-cd "$INSTALL_DIR"
-rm -rf obsidian-dir
-mkdir -p obsidian-dir
-cd obsidian-dir
-
-echo "Baixando Obsidian..."
-# Link da versão 1.6.7 (Estável)
-wget -c "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.6.7/Obsidian-1.6.7.AppImage" -O obsidian.AppImage
-chmod +x obsidian.AppImage
-
-echo "Extraindo..."
-./obsidian.AppImage --appimage-extract > /dev/null
-mv squashfs-root obsidian-files
-rm obsidian.AppImage
-
-if ! grep -q "alias obsidian=" "$ALIAS_FILE"; then
-    # É Electron, precisa das flags de segurança
-    echo "alias obsidian=\"$INSTALL_DIR/obsidian-dir/obsidian-files/obsidian --no-sandbox --disable-gpu > /dev/null 2>&1 &\"" >> "$ALIAS_FILE"
-fi
-
 echo "----------------------------------------------------------------"
 
 # ==============================================================================
